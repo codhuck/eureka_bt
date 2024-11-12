@@ -16,7 +16,7 @@ Turn_inside::Turn_inside(const std::string& name, const BT::NodeConfiguration& c
         }
     );
 
-    publisher_ = this->create_publisher<geometry_msgs::msg::PoseStamped>("goal_pose", 10);
+    publisher_turn = this->create_publisher<geometry_msgs::msg::Twist>("cmd_vel", 10);
 }
 
 BT::PortsList Turn_inside::providedPorts() 
@@ -58,23 +58,35 @@ BT::NodeStatus Turn_inside::tick()
 
 void Turn_inside::updateGoalPose(double turn_angle)
 {
-    geometry_msgs::msg::PoseStamped goal_msg;
-    goal_msg.header.stamp = this->now();
-    goal_msg.header.frame_id = "map";
+    geometry_msgs::msg::Twist twist_msg;
+    twist_msg.linear.y = 0.0;
+    twist_msg.linear.z = 0.0;
+    twist_msg.angular.x = 0.0;
+    twist_msg.angular.y = 0.0;
+    twist_msg.angular.z = 100.0;
+    if (turn_angle > 0) 
+    {
+        twist_msg.linear.x = 50.0;
+    }
+    else
+    {
+        twist_msg.linear.x = -50.0;
+    }
 
     double yaw_sh = atan2(2.0 * (orientationw * orientationz + orientationx * orientationy),
                        1.0 - 2.0 * (orientationy * orientationy + orientationz * orientationz)) + (turn_angle * M_PI / 180.0);
-    goal_msg.pose.position.x = pose_x_;
-    goal_msg.pose.position.y = pose_y_;
-    goal_msg.pose.position.z = 0.0; 
-
-    goal_msg.pose.orientation.z = std::sin(yaw_sh / 2.0);
-    goal_msg.pose.orientation.w = std::cos(yaw_sh / 2.0);
     
-    publisher_->publish(goal_msg);
+    publisher_turn->publish(twist_msg);
     double yaw = (atan2(2.0 * (orientationw * orientationz + orientationx * orientationy), 1.0 - 2.0 * (orientationy * orientationy + orientationz)))* (180.0/M_PI);
     while (yaw<yaw_sh-4.0 || yaw>yaw_sh+4.0)
     {  
         yaw = (atan2(2.0 * (orientationw * orientationz + orientationx * orientationy), 1.0 - 2.0 * (orientationy * orientationy + orientationz * orientationz)))* (180.0/M_PI);  
     }
+    twist_msg.linear.x = 0.0;
+    twist_msg.linear.y = 0.0;
+    twist_msg.linear.z = 0.0;
+    twist_msg.angular.x = 0.0;
+    twist_msg.angular.y = 0.0;
+    twist_msg.angular.z = 0.0;
+    publisher_turn->publish(twist_msg);
 }
