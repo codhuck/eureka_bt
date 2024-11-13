@@ -7,18 +7,6 @@
 #include <behaviortree_cpp_v3/bt_factory.h>
 #include <behaviortree_cpp_v3/control_node.h>
 
-static const char *xml_text = R"(
-<root BTCPP_format="4">
-    <BehaviorTree ID="MainTree">
-        <Parallel name="root_parallel" success_threshold="5" failure_threshold="5">
-            <CV_detection name="CV_detection" narrow_arrow="{narrow_arrow}" length="{length}" angle="{angle}" coef="{coef}"/>
-            <Goal_pose name="Goal_pose" narrow_arrow="{narrow_arrow}" length="{length}" angle="{angle}" coef="{coef}" turning_koef="{turning_koef}"/>
-            <Turn_inside name="Turn_inside" narrow_arrow="{narrow_arrow}" length="{length}" angle="{angle}" coef="{coef}" turning_koef="{turning_koef}"/>
-        </Parallel>
-    </BehaviorTree>
-</root>
- )";
-
 int main(int argc, char **argv) {
   rclcpp::init(argc, argv);
   auto nh = std::make_shared<rclcpp::Node>("main_bt");
@@ -29,19 +17,19 @@ int main(int argc, char **argv) {
   factory.registerNodeType<Goalpose>("Goal_pose");  
   factory.registerNodeType<Turn_inside>("Turn_inside");
 
-  auto tree = factory.createTreeFromText(xml_text);
+  auto tree = factory.createTreeFromFile("./src/eureka_bt/xml_tree/tree.xml");
 
   BT::NodeConfiguration con = {};
   auto lc_listener = std::make_shared<CV_detection>("lc_listener", con);
-  auto lc_odom = std::make_shared<Goalpose>("lc_odom", con);
-  auto lc_odomi = std::make_shared<Turn_inside>("lc_odomi", con);
+  auto lc_goal = std::make_shared<Goalpose>("lc_goal", con);
+  auto lc_turn = std::make_shared<Turn_inside>("lc_turn", con);
 
   rclcpp::Rate rate(10); 
 
   while (rclcpp::ok()) {
     rclcpp::spin_some(lc_listener);
-    rclcpp::spin_some(lc_odom);
-    rclcpp::spin_some(lc_odomi);
+    rclcpp::spin_some(lc_goal);
+    rclcpp::spin_some(lc_turn);
     tree.sleep(std::chrono::milliseconds(1));
   }
 

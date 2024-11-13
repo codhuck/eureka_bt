@@ -14,6 +14,8 @@ set(THIS_PACKAGE_INCLUDE_DEPENDS
   rcpputils
   std_msgs
   tf2
+  rclcpp_action
+  nav2_msgs
 )
 
 foreach(Dependency IN LISTS THIS_PACKAGE_INCLUDE_DEPENDS)
@@ -37,12 +39,19 @@ ament_target_dependencies(${PROJECT_NAME}
   rcpputils
   std_msgs
   tf2
+  rclcpp_action
+  nav2_msgs
 )
 
 # INSTALL
 install(TARGETS 
   ${PROJECT_NAME}
   DESTINATION lib/${PROJECT_NAME}
+)
+
+install(
+  DIRECTORY launch
+  DESTINATION share/${PROJECT_NAME}/
 )
 
 ament_package()
