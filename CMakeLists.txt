@@ -16,6 +16,7 @@ set(THIS_PACKAGE_INCLUDE_DEPENDS
   tf2
   rclcpp_action
   nav2_msgs
+  behaviortree_ros2
 )
 
 foreach(Dependency IN LISTS THIS_PACKAGE_INCLUDE_DEPENDS)
@@ -41,6 +42,7 @@ ament_target_dependencies(${PROJECT_NAME}
   tf2
   rclcpp_action
   nav2_msgs
+  behaviortree_ros2
 )
 
 # INSTALL

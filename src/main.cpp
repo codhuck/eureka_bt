@@ -6,6 +6,8 @@
 #include <behaviortree_cpp_v3/action_node.h>
 #include <behaviortree_cpp_v3/bt_factory.h>
 #include <behaviortree_cpp_v3/control_node.h>
+#include <eureka_bt/bt_action_node.hpp>
+
 
 int main(int argc, char **argv) {
   rclcpp::init(argc, argv);
@@ -29,8 +31,8 @@ int main(int argc, char **argv) {
   while (rclcpp::ok()) {
     rclcpp::spin_some(lc_listener);
     rclcpp::spin_some(lc_goal);
-    rclcpp::spin_some(lc_turn);
-    tree.sleep(std::chrono::milliseconds(1));
+    rclcpp::spin_some(lc_turn); 
+    tree.tickRoot();
   }
 
   rclcpp::shutdown();

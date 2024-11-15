@@ -4,7 +4,8 @@ CV_detection::CV_detection(const std::string& name, const BT::NodeConfiguration&
     : BT::SyncActionNode(name, config),  Node("CV_detection") {
     subscription = this->create_subscription<sensor_msgs::msg::JointState>(
         "/arrow_detection", 10,
-        [this](sensor_msgs::msg::JointState::UniquePtr msg) {
+        [&](const sensor_msgs::msg::JointState::SharedPtr msg) {
+            std::cout << "tick" << std::endl;
             if (!msg->name.empty()) {
                 names_.emplace_back(msg->name[0]);
                 positions_.emplace_back(msg->position[0]);

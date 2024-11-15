@@ -1,4 +1,3 @@
-#include <behaviortree_cpp_v3/bt_factory.h> 
 #include <rclcpp/rclcpp.hpp>
 #include <geometry_msgs/msg/pose.hpp>
 #include <geometry_msgs/msg/pose_stamped.hpp>
@@ -6,6 +5,8 @@
 #include <tf2/LinearMath/Quaternion.h>
 #include <tf2/LinearMath/Matrix3x3.h>
 #include <cmath>
+#include <eureka_bt/bt_action_node.hpp>
+
 
 class Goalpose : public BT::SyncActionNode, public rclcpp::Node {
 public:
