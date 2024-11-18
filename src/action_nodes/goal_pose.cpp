@@ -1,17 +1,20 @@
 #include "eureka_bt/goal_pose.hpp"
 
+    double posex, posey;
+    double orientationw, orientationx, orientationy, orientationz;
+
 Goalpose::Goalpose(const std::string& name, const BT::NodeConfiguration& config)
     : BT::SyncActionNode(name, config), Node("Goal_pose") {
 
-    subscriptionpose = this->create_subscription<geometry_msgs::msg::Pose>(
-        "/odometry", 10,
-        [this](geometry_msgs::msg::Pose::UniquePtr msg) {
-            posex = msg->position.x;
-            posey = msg->position.y;
-            orientationw = msg->orientation.w;
-            orientationx = msg->orientation.x;
-            orientationy = msg->orientation.y;
-            orientationz = msg->orientation.z;
+    subscriptionpose = this->create_subscription<geometry_msgs::msg::PoseWithCovarianceStamped>(
+        "/localization_pose", 10,
+        [this](geometry_msgs::msg::PoseWithCovarianceStamped::UniquePtr msg) {
+            posex = msg->pose.pose.position.x;
+            posey = msg->pose.pose.position.y;
+            orientationw = msg->pose.pose.orientation.w;
+            orientationx = msg->pose.pose.orientation.x;
+            orientationy = msg->pose.pose.orientation.y;
+            orientationz = msg->pose.pose.orientation.z;
         }
     );
 
@@ -48,12 +51,12 @@ void Goalpose::publishGoalPose(double length, double angle)
     geometry_msgs::msg::PoseStamped goalposemsg;
     goalposemsg.header.stamp = this->now();
     goalposemsg.header.frame_id = "map"; 
-    double yaw = atan2(2.0 * (orientationw * orientationz + orientationx * orientationy),
+    double yaw_sh = atan2(2.0 * (orientationw * orientationz + orientationx * orientationy),
                        1.0 - 2.0 * (orientationy * orientationy + orientationz * orientationz));
     double localx = (length - 1.0);
     double localy = (length - 1.0) * sin(-angle); 
-    double globalx = posex + (localx * cos(yaw) - localy * sin(yaw));
-    double globaly = posey + (localx * sin(yaw) + localy * cos(yaw));
+    double globalx = posex + (localx * cos(yaw_sh) - localy * sin(yaw_sh));
+    double globaly = posey + (localx * sin(yaw_sh) + localy * cos(yaw_sh));
     goalposemsg.pose.position.x = globalx;
     goalposemsg.pose.position.y = globaly;
     goalposemsg.pose.position.z = 0.0;
@@ -61,10 +64,13 @@ void Goalpose::publishGoalPose(double length, double angle)
     goalposemsg.pose.orientation.y = orientationy;
     goalposemsg.pose.orientation.z = orientationz;
     goalposemsg.pose.orientation.w = orientationw;
+    double yaw = (atan2(2.0 * (orientationw * orientationz + orientationx * orientationy), 1.0 - 2.0 * (orientationy * orientationy + orientationz * orientationz))) * (180.0/M_PI);
+
 
     publisher->publish(goalposemsg);
-
-    while (posex > globalx + 1 || posex < globalx - 1 || posey > globaly + 1 || posey < globaly - 1) 
-    {  }
+    while (posex > globalx + 1 && posex < globalx - 1 && posey > globaly + 1 && posey < globaly - 1 && yaw<yaw_sh-4.0 && yaw>yaw_sh+4.0) 
+    {          
+        yaw = (atan2(2.0 * (orientationw * orientationz + orientationx * orientationy), 1.0 - 2.0 * (orientationy * orientationy + orientationz * orientationz))) * (180.0/M_PI);  
+    }
 }
 

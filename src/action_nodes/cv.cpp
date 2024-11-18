@@ -1,12 +1,16 @@
 #include "eureka_bt/cv.hpp"
 
+    std::string narrow ;
+    double length = 0.0;
+    double angle = 0.0;
+    double coef = 0.0;
+
 CV_detection::CV_detection(const std::string& name, const BT::NodeConfiguration& config)
     : BT::SyncActionNode(name, config),  Node("CV_detection") {
     subscription = this->create_subscription<sensor_msgs::msg::JointState>(
         "/arrow_detection", 10,
         [&](const sensor_msgs::msg::JointState::SharedPtr msg) {
-            std::cout << "tick" << std::endl;
-            if (!msg->name.empty()) {
+             if (!msg->name.empty()) {
                 names_.emplace_back(msg->name[0]);
                 positions_.emplace_back(msg->position[0]);
                 velocities_.emplace_back(msg->velocity[0]);
@@ -35,6 +39,7 @@ BT::NodeStatus CV_detection::tick() {
     setOutput("length", length);
     setOutput("angle", angle);
     setOutput("coef", coef);
+    std::cout << narrow << std::endl;
     return BT::NodeStatus::SUCCESS;
 }
 

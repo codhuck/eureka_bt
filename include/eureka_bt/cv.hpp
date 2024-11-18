@@ -23,11 +23,6 @@ private:
     std::vector<double> velocities_;
     std::vector<double> efforts_;
 
-    std::string narrow = "No_detection";
-    double length = 0.0;
-    double angle = 0.0;
-    double coef = 0.0;
-
     rclcpp::Subscription<sensor_msgs::msg::JointState>::SharedPtr subscription;
     rclcpp::Node::SharedPtr node;
 
