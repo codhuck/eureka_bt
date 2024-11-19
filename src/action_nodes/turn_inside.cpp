@@ -55,7 +55,7 @@ BT::NodeStatus Turn_inside::tick()
         return BT::NodeStatus::FAILURE;
     }
     
-    if (length > 0.0 && length < 1.8 && coef > 0.7) 
+    if (length > 0.0 && length < 1.8 && coef > 0.7 && narrow_arrow != "No_detection") 
     {
         setOutput("turning_koef", true);
         auto future_cancel = action_client->async_cancel_all_goals();
@@ -86,6 +86,7 @@ void Turn_inside::updateGoalPose(double turn_angle)
     twist_msg.angular.x = 0.0;
     twist_msg.angular.y = 0.0;
     twist_msg.angular.z = 100.0;
+    std::cout << "Turn angle: " << turn_angle << std::endl;
     if (turn_angle > 0)
     {
         twist_msg.linear.x = 50.0;

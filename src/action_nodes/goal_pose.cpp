@@ -39,7 +39,7 @@ BT::NodeStatus Goalpose::tick() {
     auto coef = getInput<double>("coef");
     auto turning_koef = getInput<bool>("turning_koef");
 
-    if (*msglength > 1.8 && *msgnarrow != "No_detection" && *turning_koef == false) {
+    if (*msglength > 1.8 && *msgnarrow != "No_detection" && *turning_koef == false && *coef > 0.5) {
         publishGoalPose(*msglength, *angle);
     }
 
@@ -68,7 +68,7 @@ void Goalpose::publishGoalPose(double length, double angle)
 
 
     publisher->publish(goalposemsg);
-    while (posex > globalx + 1 && posex < globalx - 1 && posey > globaly + 1 && posey < globaly - 1 && yaw<yaw_sh-4.0 && yaw>yaw_sh+4.0) 
+    while (posex > globalx + 0.5 && posex < globalx - 0.5 && posey > globaly + 0.5 && posey < globaly - 0.5 && yaw<yaw_sh-4.0 && yaw>yaw_sh+4.0) 
     {          
         yaw = (atan2(2.0 * (orientationw * orientationz + orientationx * orientationy), 1.0 - 2.0 * (orientationy * orientationy + orientationz * orientationz))) * (180.0/M_PI);  
     }

@@ -35,11 +35,15 @@ BT::PortsList CV_detection::providedPorts() {
 }
 
 BT::NodeStatus CV_detection::tick() {
+    
     setOutput("narrow_arrow", narrow);
     setOutput("length", length);
     setOutput("angle", angle);
     setOutput("coef", coef);
-    std::cout << narrow << std::endl;
+    narrow = "No_detection";
+    length = 0.0;
+    angle = 0.0;
+    coef = 0.0;
     return BT::NodeStatus::SUCCESS;
 }
 
