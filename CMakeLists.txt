@@ -16,7 +16,6 @@ set(THIS_PACKAGE_INCLUDE_DEPENDS
   tf2
   rclcpp_action
   nav2_msgs
-  behaviortree_ros2
 )
 
 foreach(Dependency IN LISTS THIS_PACKAGE_INCLUDE_DEPENDS)
@@ -26,9 +25,9 @@ endforeach()
 include_directories(include/)
 
 add_executable(${PROJECT_NAME}
-  src/action_nodes/turn_inside.cpp
-  src/action_nodes/goal_pose.cpp
   src/action_nodes/cv.cpp
+  src/action_nodes/goal_pose.cpp
+  src/action_nodes/turn_inside.cpp
   src/main.cpp
 )
 
@@ -42,7 +41,6 @@ ament_target_dependencies(${PROJECT_NAME}
   tf2
   rclcpp_action
   nav2_msgs
-  behaviortree_ros2
 )
 
 # INSTALL

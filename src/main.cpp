@@ -29,11 +29,11 @@ int main(int argc, char **argv) {
   rclcpp::Rate rate(10); 
 
   while (rclcpp::ok()) {
+    tree.tickRoot();
     rclcpp::spin_some(lc_listener);
     rclcpp::spin_some(lc_goal);
     rclcpp::spin_some(lc_turn); 
-    tree.tickRoot();
-  }
+   }
 
   rclcpp::shutdown();
   return 0;

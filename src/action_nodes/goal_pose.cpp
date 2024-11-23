@@ -1,7 +1,10 @@
+
 #include "eureka_bt/goal_pose.hpp"
+#include <cmath>
 
     double posex, posey;
     double orientationw, orientationx, orientationy, orientationz;
+    double coef_goal_pose = 0.0;
 
 Goalpose::Goalpose(const std::string& name, const BT::NodeConfiguration& config)
     : BT::SyncActionNode(name, config), Node("Goal_pose") {
@@ -37,9 +40,9 @@ BT::NodeStatus Goalpose::tick() {
     auto msglength = getInput<double>("length");
     auto angle = getInput<double>("angle");
     auto coef = getInput<double>("coef");
+    std::cout<< "Yep"<<std::endl;
     auto turning_koef = getInput<bool>("turning_koef");
-
-    if (*msglength > 1.8 && *msgnarrow != "No_detection" && *turning_koef == false && *coef > 0.5) {
+    if (*msglength > 2.0 && *msgnarrow != "No_detection" && *turning_koef == false && *coef > 0.3) {
         publishGoalPose(*msglength, *angle);
     }
 
@@ -54,7 +57,7 @@ void Goalpose::publishGoalPose(double length, double angle)
     double yaw_sh = atan2(2.0 * (orientationw * orientationz + orientationx * orientationy),
                        1.0 - 2.0 * (orientationy * orientationy + orientationz * orientationz));
     double localx = (length - 1.0);
-    double localy = (length - 1.0) * sin(-angle); 
+    double localy = (length) * sin(-angle* (M_PI / 180.0)); 
     double globalx = posex + (localx * cos(yaw_sh) - localy * sin(yaw_sh));
     double globaly = posey + (localx * sin(yaw_sh) + localy * cos(yaw_sh));
     goalposemsg.pose.position.x = globalx;
@@ -64,13 +67,16 @@ void Goalpose::publishGoalPose(double length, double angle)
     goalposemsg.pose.orientation.y = orientationy;
     goalposemsg.pose.orientation.z = orientationz;
     goalposemsg.pose.orientation.w = orientationw;
-    double yaw = (atan2(2.0 * (orientationw * orientationz + orientationx * orientationy), 1.0 - 2.0 * (orientationy * orientationy + orientationz * orientationz))) * (180.0/M_PI);
-
-
+    if (coef_goal_pose == 0.0) 
+    {
     publisher->publish(goalposemsg);
-    while (posex > globalx + 0.5 && posex < globalx - 0.5 && posey > globaly + 0.5 && posey < globaly - 0.5 && yaw<yaw_sh-4.0 && yaw>yaw_sh+4.0) 
-    {          
-        yaw = (atan2(2.0 * (orientationw * orientationz + orientationx * orientationy), 1.0 - 2.0 * (orientationy * orientationy + orientationz * orientationz))) * (180.0/M_PI);  
+    std::cout<<globalx<<std::endl;
+    }
+    yaw_sh = yaw_sh * (180.0/M_PI);
+        if (posex > globalx + 0.5 || posex < globalx - 0.5  || posey > globaly + 0.5 || posey < globaly - 0.5) 
+    { coef_goal_pose = 1.0; }
+    else
+    {
+        coef_goal_pose = 0.0;
     }
 }
-
