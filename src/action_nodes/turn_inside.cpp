@@ -7,6 +7,7 @@
     double orientationz_;
         double coef_for_turning = 0.0;
     double value_of_turn;
+    double twist_yaw;
 
 using NavigateToPose = nav2_msgs::action::NavigateToPose;
 using GoalHandleNavigateToPose = rclcpp_action::ClientGoalHandle<NavigateToPose>;
@@ -90,6 +91,18 @@ BT::NodeStatus Turn_inside::tick()
             publisher_turn->publish(twist_msg);
             setOutput("turning_koef", false);
         }
+        else
+        {
+            geometry_msgs::msg::Twist twist_msg;
+            twist_msg.linear.x = twist_yaw;
+            twist_msg.linear.y = 0.0;
+            twist_msg.linear.z = 0.0;
+            twist_msg.angular.x = 0.0;
+            twist_msg.angular.y = 0.0;
+            twist_msg.angular.z = 100.0;
+            publisher_turn->publish(twist_msg);
+
+        }
     }
     else
     {
@@ -110,10 +123,12 @@ void Turn_inside::updateGoalPose(double turn_angle)
     if (turn_angle > 0)
     {
         twist_msg.linear.x = 0.14;
+        twist_yaw = 0.14;
     }
     else
     {
         twist_msg.linear.x = -0.14;
+        twist_yaw = -0.14;
     }
             tf2::Quaternion quaternion(
             orientationx_,
