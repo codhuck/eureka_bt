@@ -8,6 +8,9 @@
         double coef_for_turning = 0.0;
     double value_of_turn;
     double twist_yaw;
+    double menshe;
+    double bolshe;
+    double stop=1.0;
 
 using NavigateToPose = nav2_msgs::action::NavigateToPose;
 using GoalHandleNavigateToPose = rclcpp_action::ClientGoalHandle<NavigateToPose>;
@@ -51,64 +54,37 @@ BT::NodeStatus Turn_inside::tick()
     std::string narrow_arrow;
     double length;
     double coef;
+    if (!getInput<std::string>("narrow_arrow", narrow_arrow) 
+        || !getInput<double>("length", length) 
+        || !getInput<double>("coef", coef)) 
+    {
+        return BT::NodeStatus::FAILURE;
+    }
 
-   if (length > 0.0 && length < 2.1 && coef > 0.7 && narrow_arrow != "No_detection" && coef_for_turning == 0.0) 
+   if (length < 1.0 && coef > 0.8 && narrow_arrow != "No_detection" ) 
     {
         setOutput("turning_koef", true);
         auto future_cancel = action_client->async_cancel_all_goals();
+        std::this_thread::sleep_for(std::chrono::seconds(12));
+        double turn_angle = (narrow_arrow == "left") ? -90.0 : 90.0;
         geometry_msgs::msg::Twist twist_msg;
-        twist_msg.linear.x = 0.0;
+        if (turn_angle>0){
+            twist_msg.linear.x = -0.05;
+        }
+        else
+        {
+            twist_msg.linear.x = 0.05;
+        }
         twist_msg.linear.y = 0.0;
         twist_msg.linear.z = 0.0;
         twist_msg.angular.x = 0.0;
         twist_msg.angular.y = 0.0;
-        twist_msg.angular.z = 0.0;
+        twist_msg.angular.z = 100.0;
         publisher_turn->publish(twist_msg);
-        std::this_thread::sleep_for(std::chrono::seconds(12));
         std::cout<< "Time_for_waiting" << std::endl;
-        double turn_angle = (narrow_arrow == "left") ? 90.0 : -90.0;
-        updateGoalPose(turn_angle);
-    } 
-    if (coef_for_turning == 1.0) 
-    {
-        tf2::Quaternion quaternion(
-            orientationx_,
-            orientationy_,
-            orientationz_,
-            orientationw_);
-        double roll, pitch, yaw;
-        tf2::Matrix3x3(quaternion).getRPY(roll, pitch, yaw);
-        if (yaw < value_of_turn + 0.1 && yaw > value_of_turn - 0.1)
-        {
-            coef_for_turning = 0.0;
-            geometry_msgs::msg::Twist twist_msg;
-            twist_msg.linear.x = 0.0;
-            twist_msg.linear.y = 0.0;
-            twist_msg.linear.z = 0.0;
-            twist_msg.angular.x = 0.0;
-            twist_msg.angular.y = 0.0;
-            twist_msg.angular.z = 0.0;
-            publisher_turn->publish(twist_msg);
-            setOutput("turning_koef", false);
-        }
-        else
-        {
-            geometry_msgs::msg::Twist twist_msg;
-            twist_msg.linear.x = twist_yaw;
-            twist_msg.linear.y = 0.0;
-            twist_msg.linear.z = 0.0;
-            twist_msg.angular.x = 0.0;
-            twist_msg.angular.y = 0.0;
-            twist_msg.angular.z = 100.0;
-            publisher_turn->publish(twist_msg);
+        std::this_thread::sleep_for(std::chrono::seconds(12));
+     } 
 
-        }
-    }
-    else
-    {
-        setOutput("turning_koef", false);
-
-    }
     return BT::NodeStatus::FAILURE; 
 }
 
@@ -123,12 +99,12 @@ void Turn_inside::updateGoalPose(double turn_angle)
     if (turn_angle > 0)
     {
         twist_msg.linear.x = 0.14;
-        twist_yaw = 0.14;
+        twist_yaw = 0.08;
     }
     else
     {
         twist_msg.linear.x = -0.14;
-        twist_yaw = -0.14;
+        twist_yaw = -0.08;
     }
             tf2::Quaternion quaternion(
             orientationx_,
@@ -147,6 +123,9 @@ void Turn_inside::updateGoalPose(double turn_angle)
             yaw += 2.0 * M_PI;
         }
         value_of_turn = yaw;
+                std::cout<<"time"<<std::endl;
+        std::cout<<yaw<<std::endl;
     publisher_turn->publish(twist_msg);
     coef_for_turning = 1.0;
+    stop=0.0;
 }

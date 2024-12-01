@@ -3,7 +3,6 @@
 #include <eureka_bt/goal_pose.hpp>
 #include <eureka_bt/turn_inside.hpp>
 #include <behaviortree_cpp_v3/bt_factory.h> 
-#include <behaviortree_cpp_v3/action_node.h>
 #include <behaviortree_cpp_v3/bt_factory.h>
 #include <behaviortree_cpp_v3/control_node.h>
 #include <eureka_bt/bt_action_node.hpp>
@@ -29,11 +28,11 @@ int main(int argc, char **argv) {
   rclcpp::Rate rate(10); 
 
   while (rclcpp::ok()) {
-    tree.tickRoot();
     rclcpp::spin_some(lc_listener);
     rclcpp::spin_some(lc_goal);
     rclcpp::spin_some(lc_turn); 
-   }
+    tree.tickRoot();
+  }
 
   rclcpp::shutdown();
   return 0;

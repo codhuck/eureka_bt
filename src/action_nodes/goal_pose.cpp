@@ -98,7 +98,8 @@ BT::NodeStatus Goalpose::tick() {
         //return BT::NodeStatus::SUCCESS;
     //}
 
-    if (*msglength > 2.0 && *msgnarrow != "No_detection" && *turning_koef == false && *coef > 0.3) {
+    if (*msglength > 1.0 && *msgnarrow != "No_detection" && *coef > 0.6) {
+        std::cout<<"Goal"<<std::endl;
         publishGoalPose(*msglength, *angle);
     }
 
@@ -112,7 +113,7 @@ void Goalpose::publishGoalPose(double length, double angle) {
 
     double yaw_sh = atan2(2.0 * (orientationw * orientationz + orientationx * orientationy),
                           1.0 - 2.0 * (orientationy * orientationy + orientationz * orientationz));
-    double localx = (length - 1.0);
+    double localx = (length )* cos(-angle * (M_PI / 180.0));
     double localy = (length) * sin(-angle * (M_PI / 180.0));
     double globalx = posex + (localx * cos(yaw_sh) - localy * sin(yaw_sh));
     double globaly = posey + (localx * sin(yaw_sh) + localy * cos(yaw_sh));
@@ -144,7 +145,7 @@ void Goalpose::publishGoalPose(double length, double angle) {
         publisher->publish(goalposemsg);
     }
 
-    if (posex > globalx + 0.5 || posex < globalx - 0.5 || posey > globaly + 0.5 || posey < globaly - 0.5) {
+    if (posex > globalx + 0.05 || posex < globalx - 0.05 || posey > globaly + 0.05 || posey < globaly - 0.05) {
         coef_goal_pose = 1.0;
     } else {
         coef_goal_pose = 0.0;

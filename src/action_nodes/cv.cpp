@@ -40,7 +40,6 @@ BT::NodeStatus CV_detection::tick() {
     setOutput("length", length);
     setOutput("angle", angle);
     setOutput("coef", coef);
-    std::cout << "narrow: " << narrow << ", length: " << length << ", angle: " << angle << ", coef: " << coef << std::endl;
     narrow = "No_detection";
     length = 0.0;
     angle = 0.0;
