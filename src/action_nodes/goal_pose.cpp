@@ -56,22 +56,22 @@ void Goalpose::processCostmap(const nav_msgs::msg::OccupancyGrid::SharedPtr msg)
 bool Goalpose::isObstacle(double x, double y) {
     if (global_costmap.empty()) return false;
 
-    int map_x = static_cast<int>((x - posex) / 0.05); // Предположим размер ячейки 0.05 м
+    int map_x = static_cast<int>((x - posex) / 0.05); 
     int map_y = static_cast<int>((y - posey) / 0.05);
 
     if (map_x < 0 || map_y  < 0 || map_y >= global_costmap.size() || map_x >= global_costmap[0].size()) 
     {
         return true;
     }
-    return global_costmap[map_y][map_x] > 50; // Значение >50 — это препятствие
+    return global_costmap[map_y][map_x] > 0;
 }
 
 void Goalpose::rotate(double angle_deg) {
     geometry_msgs::msg::Twist cmd_msg;
     cmd_msg.linear.x = 0.0;
-    cmd_msg.angular.z = angle_deg > 0 ? 0.5 : -0.5; // Направление вращения
+    cmd_msg.angular.z = angle_deg > 0 ? 0.5 : -0.5; 
 
-    double rotation_time = std::abs(angle_deg / 30.0); // Время вращения (30 град/сек)
+    double rotation_time = std::abs(angle_deg / 30.0); 
     auto start_time = std::chrono::steady_clock::now();
 
     while (std::chrono::duration_cast<std::chrono::seconds>(
@@ -80,7 +80,7 @@ void Goalpose::rotate(double angle_deg) {
         publisher_turning->publish(cmd_msg);
     }
 
-    cmd_msg.angular.z = 0.0; // Останавливаем вращение
+    cmd_msg.angular.z = 0.0; 
     publisher_turning->publish(cmd_msg);
 }
 
